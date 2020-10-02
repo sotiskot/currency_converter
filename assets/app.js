@@ -6,19 +6,23 @@
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
-import './styles/app.css';
+import './styles/app.scss'; // Trying to add bootstrap through sass, unfortunantely couldn't make it to work.
 
+const $ = require('jquery');
+
+require('bootstrap');
+
+$(document).ready(function() {
+    $('[data-toggle="popover"]').popover();
+});
+
+// importing vue, making vue components and initializing the #app element
 import Vue from 'vue'
-
-// Need jQuery? Install it with "yarn add jquery", then uncomment to import it.
-// import $ from 'jquery';
-
-console.log('Hello Webpack Encore! Edit me in assets/app.js');
 
 window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
-new Vue({
+const app = new Vue({
     el: '#app',
 });
