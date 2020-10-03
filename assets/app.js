@@ -5,9 +5,6 @@
  * (and its CSS file) in your base layout (base.html.twig).
  */
 
-// any CSS you import will output into a single css file (app.css in this case)
-import './styles/app.scss'; // Trying to add bootstrap through sass, unfortunantely couldn't make it to work.
-
 const $ = require('jquery');
 
 require('bootstrap');
@@ -26,3 +23,14 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 const app = new Vue({
     el: '#app',
 });
+
+/**
+ *  Loading and using axios HTTP library which allows us for ease of use HTTP requests with the 
+ *  back-end in place of Ajax
+ */
+window.axios = require('axios');
+
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// any CSS you import will output into a single css file (app.css in this case)
+import './styles/app.scss'; // Trying to add bootstrap through sass, unfortunantely couldn't make it to work.

@@ -1,10 +1,9 @@
 <template>
-    <div>
+    <div class="text-center">
         <form @submit.prevent="test">
-            <p>{{ output }}</p>
             <p>{{ rates }}</p>
-            <input type="number" v-model="input"><select v-model="selectedFrom"><option v-for="(item, currency) in currencies" v-bind:value="currency">{{ item }}</option></select><br>
-            <input type="number"><select v-model="selectedTo"><option v-for="(item, currency) in currencies" v-bind:value="currency">{{ item }}</option></select><br>
+            <input type="text" v-model="input"><select v-model="selectedFrom"><option v-for="(item, currency) in currencies" v-bind:value="currency">{{ item }}</option></select><br>
+            <input type="text" v-model="output" disabled><select v-model="selectedTo"><option v-for="(item, currency) in currencies" v-bind:value="currency">{{ item }}</option></select><br>
             <button>exchange</button>
         </form>
     </div>
@@ -15,21 +14,21 @@
         data: function() {
             return {
                 output: '0',
-                input: '1',
+                input: '',
                 selectedFrom: '',
                 selectedTo: '',
                 currencies: {
-                    euro: 'Euro',
+                    eur: 'Euro',
                     usd: 'Us dollar',
-                    sf: 'Swiss Franc',
-                    bp: 'British Pound',
+                    sfr: 'Swiss Franc',
+                    brp: 'British Pound',
                     cad: 'Canadian dollar',
                     jpy: 'Japanese Yen'
                     },
                 rates: {
-                    'eurousd': '1.3764',
-                    'eurosf': '1.2079',
-                    'eurobp': '0.8731',
+                    'eurusd': '1.3764',
+                    'eursf': '1.2079',
+                    'eurbp': '0.8731',
                     'usdjpy': '76.7200',
                     'sfusd': '1.1379',
                     'bpcad': '1.5648'
