@@ -11,6 +11,10 @@
 
 <script>
     export default {
+        props: {
+            rates: String
+        },
+
         data: function() {
             return {
                 output: '0',
@@ -25,20 +29,24 @@
                     cad: 'Canadian dollar',
                     jpy: 'Japanese Yen'
                     },
-                rates: {
-                    'eurusd': '1.3764',
-                    'eursf': '1.2079',
-                    'eurbp': '0.8731',
-                    'usdjpy': '76.7200',
-                    'sfusd': '1.1379',
-                    'bpcad': '1.5648'
-                }
+                
             }
         },
+
         methods: {
             test: function () {
-                console.log(this.selectedFrom + this.selectedTo);
-                this.output = parseFloat(this.rates[String(this.selectedFrom + this.selectedTo)]) * this.input;
+                var rates = JSON.stringify(this.$props.rates);
+                var rate = 0;
+                console.log(rates[0]);
+                if( rate = parseFloat(rates[String(this.selectedFrom + this.selectedTo)]))
+                {
+                    this.output = rate * this.input;
+                }else if( rate = parseFloat(rates[String(this.selectedTo + this.selectedFrom)]))
+                {
+                    this.output = 1/rate * this.input;
+                    console.log(rate);
+                }
+                //this.output = parseFloat(this.rates[String(this.selectedFrom + this.selectedTo)]) * this.input;
             }
         },
         mounted() {

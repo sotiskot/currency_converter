@@ -47,4 +47,12 @@ class RatesRepository extends ServiceEntityRepository
         ;
     }
     */
+    
+
+    public function getAll() {
+        $qb = $this->createQueryBuilder('r');     
+    
+    
+        return $qb->getQuery()->getArrayResult();
+    }
 }

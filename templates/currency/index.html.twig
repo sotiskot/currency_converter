@@ -4,8 +4,9 @@
 
 {% block body %}
 <!-- Vue Component initialization-->
+<p>{{ rates }}</p>
 TEST
 <div id="app">
-    <example-component/>
+    <example-component rates="{{ rates }}"/>
 </div>
 {% endblock %}
