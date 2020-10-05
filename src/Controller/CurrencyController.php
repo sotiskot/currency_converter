@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Rates;
 use App\Repository\RatesRepository;
+use App\Entity\Currency;
+use App\Repository\CurrencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,36 +18,23 @@ class CurrencyController extends AbstractController
     /**
      * @Route("/currency", name="currency")
      */
-    public function index(RatesRepository $rates)
+    public function index()
     {
-
+        $currencies = $this->getDoctrine()->getManager()->getRepository(Currency::class)->getAll();
         $rates = $this->getDoctrine()->getManager()->getRepository(Rates::class)->getAll();
         
-        $temp = '';
-
-        foreach($rates as $id => $key)
-        {
-            foreach($key as $name => $value)
-            {
-                if($name != 'id')
-                {
-                    if($name == 'currencies')
-                    {
-                        $temp = $temp."'".$value."':'";
-                    }else{
-                        $temp = $temp.$value."',";
-                    }
-                }
-            }
-            
+        foreach ($currencies as $currency) {
+            unset($currency['id']);
         }
 
-        $temp = substr_replace($temp, '', -1);
-        $temp = explode(',', $temp);
-
+        foreach ($rates as $rate) {
+            unset($rate['id']);
+        }
+    
         return $this->render('currency/index.html.twig', [
             'controller_name' => 'CurrencyController',
-            'rates' => json_encode($temp)
+            'rates' => json_encode($rates),
+            'currencies' => json_encode($currencies)
             ]);
     }
 }
