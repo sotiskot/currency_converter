@@ -31,4 +31,28 @@ class Rates
     {
         return $this->id;
     }
+
+    public function getCurrencies(): ?string
+    {
+        return $this->currencies;
+    }
+
+    public function setCurrencies(string $currencies): self
+    {
+        $this->currencies = $currencies;
+
+        return $this;
+    }
+
+    public function getRate(): ?float
+    {
+        return $this->rate;
+    }
+
+    public function setRate(float $rate): self
+    {
+        $this->rate = $rate;
+
+        return $this;
+    }
 }

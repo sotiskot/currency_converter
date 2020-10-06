@@ -1,3 +1,8 @@
 index:
     path: /
     controller: App\Controller\CurrencyController::index
+
+edit:
+    path: /edit
+    controller: App\Controller\CurrencyController::edit
+    methods: POST

@@ -55,4 +55,13 @@ class RatesRepository extends ServiceEntityRepository
     
         return $qb->getQuery()->getArrayResult();
     }
+
+    public function getCurrencies($value)
+    {
+        return $this->createQueryBuilder('r')
+        ->andWhere('r.currencies = :val')
+        ->setParameter('val', $value)
+        ->getQuery()
+        ->getOneOrNullResult();
+    }
 }
