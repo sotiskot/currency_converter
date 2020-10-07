@@ -101,6 +101,8 @@
                 // use the 1st select as key
                 const key = this.selectedFrom;
 
+                this.available = [];
+                
                 // based on key find known any exchange rate that uses that code - prone to bugs if large_scale
                 var available = rates.filter(r => r.currencies.includes(key));
 
