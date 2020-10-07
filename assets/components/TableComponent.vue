@@ -1,40 +1,39 @@
 <template>
-    <div class="text-center">
-        <table>
-            <tr>
+    <div class="container text-center">
+        <table class="table">
+            <tr class="bg-primary text-white">
                 <th>From</th>
                 <th>To</th>
                 <th>Rate</th>
+                <td></td>
             </tr>
             <tr v-for="item in newRates" v-bind:id="item.id">
                 <td>{{ matchCurrency(item.currencies.substring(0,3)) }}</td>
                 <td>{{ matchCurrency(item.currencies.substring(3,6)) }}</td>
                 <td>{{ item.rate }}</td>
                 <td hidden>{{ item.currencies }}</td>
-                <td><button @click="delRates($event, item)">X</button></td>
+                <td><button class="btn btn-danger" @click="delRates($event, item)">X</button></td>
             </tr>
             <tr>
                 <td>
-                    <label for="from">From: </label>
-                    <select name="" id="from" v-model="from">
+                    <select name="" id="from" v-model="from" class="custom-select">
                         <option v-for="item in JSON.parse(currencies)" v-bind:value="item.code">{{ item.name }}</option>
                     </select>
                 </td>
                 <td>
-                    <label for="to">To: </label>
-                    <select name="" id="to" v-model="to">
+                    <select name="" id="to" v-model="to" class="custom-select">
                         <option v-for="item in JSON.parse(currencies)" v-bind:value="item.code">{{ item.name }}</option>
                     </select>
                 </td>
                 <td>
-                    <label for="rate">Rate: </label><input type="text" id="rate" v-model="rate">
+                    <input type="text" id="rate" class="form-control" v-model="rate">
                 </td>
                 <td>
-                    <button @click="addNewRate">+</button>
+                    <button class="btn btn-primary" @click="addNewRate">+</button>
                 </td>
             </tr>
         </table>
-        <span :style="style">{{ message }}</span>
+        <h1 class="bg-warning" :style="style">{{ message }}</h1>
     </div>
 </template>
 

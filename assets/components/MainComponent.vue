@@ -1,26 +1,37 @@
 <template>
-    <div class="text-center">
+    <div class="container text-center">
         <form @submit.prevent="exchange">
-            <input type="text" v-model="input" @keypress="isNumber($event, input)">
-            <select v-model="selectedFrom" @change="matchCurrency">
-                <option disabled value="">Select Currency</option>
-                <!-- select option using data from database  currency name and currency code as value -->
-                <option v-for="item in JSON.parse(currencies)" v-bind:value="item.code">{{ item.name }}</option>
-            </select>
-            <br>
-            <input type="text" v-model="output" disabled>
-            <select v-model="selectedTo" ref="test" disabled @change="allowExchange">
-                <option disabled value="">Select Currency</option>
-                <!-- select option using available exchange rates  -->
-                <option v-for="item in available" v-bind:value="item.code">{{ item.name }}</option>
-            </select>
-            <!-- Call edit component and pass rates -->
-            
-            <br>
-            <button ref="exchange" @click="allowEdit" disabled>exchange</button>
+            <div class="form-row">
+                <div class="form-col col-6">
+                    <select class="custom-select" v-model="selectedFrom" @change="matchCurrency" >
+                        <option disabled value="">Select Currency</option>
+                        <!-- select option using data from database  currency name and currency code as value -->
+                        <option v-for="item in JSON.parse(currencies)" v-bind:value="item.code">{{ item.name }}</option>
+                    </select>
+                </div>
+                <div class="form-col col-6">
+                    <input class="form-control" type="text" v-model="input" @keypress="isNumber($event, input)">
+                </div>      
+            </div>
+            <div class="form-row">
+                <div class="form-col col-6">
+                    <select class="custom-select" v-model="selectedTo" ref="test" disabled @change="allowExchange">
+                        <option disabled value="">Select Currency</option>
+                        <!-- select option using available exchange rates  -->
+                        <option v-for="item in available" v-bind:value="item.code">{{ item.name }}</option>
+                    </select>
+                </div>
+                <div class="form-col col-6">
+                    <input class="form-control" type="text" v-model="output" disabled>
+                                <!-- Call edit component and pass rates -->
+                    <button class="btn btn-success form-control" ref="exchange" @click="allowEdit" disabled>exchange</button>
+                </div>
+            </div>
+
+
         </form>
         <input v-model="editInput" @keypress="isNumber($event, editInput)" :style="editHidden" >
-        <button ref="edit" @click="show" disabled>{{ buttonText }}</button>
+        <button class="btn btn-primary m-1" ref="edit" @click="show" disabled>{{ buttonText }}</button>
         <p style="color:yellow">{{ editText }}</p>
     </div>
 </template>
