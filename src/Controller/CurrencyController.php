@@ -130,10 +130,20 @@ class CurrencyController extends AbstractController
 
         $entityManager = $this->getDoctrine()->getManager();
 
+        /**
+         *  Query to check if the rate trying to add already exist,
+         *  ex SELECT * FROM rates WHERE currencies = 'eurusd' OR currencies = 'usdeur'
+         */ 
         $check = $this->getDoctrine()->getManager()->getRepository(Rates::class)->findBy(['currencies' => [$content['from'].$content['to'], $content['to'].$content['from']]] );
 
+
+        /**
+         *  Check if query is empty and the user doesn't try to add a rate for 1 coin
+         *  and last make sure the input from the user is a valid number
+         */
         if(count($check) == 0 && $content['from'] != $content['to'] && is_numeric($content['rate']))
         {
+            // if everything is proper create a new rate
             $rate = new Rates();
 
             $rate->setCurrencies($content['from'].$content['to']);
@@ -142,21 +152,29 @@ class CurrencyController extends AbstractController
             $entityManager->persist($rate);
 
             $entityManager->flush();
-
+            
+            //  alter message for the user and fail condition for the vue component
             $message = 'Added succesfully';
             $fail = false;
         }else if($content['from'] == $content['to'])
         {
+            // checks if user has the same coin in both selects and sends back appropriate message
             $message = 'Tried to add rate for 1 currency';
         }else if(!is_numeric($content['rate']))
         {
+            // checks if user's input is not a number to send back appropriate message
             $message = 'Make sure the rate is a proper number';
         }
         else{
+            /**
+             *  If everything else is correct then the currencies he is trying
+             *  to add a rate for already have a rate
+             */  
             $message = 'Selected currencies already have a rate';
             $fail = true;
         }
 
+        // create a json response with a message and a fail condition for the vue
         return new JsonResponse([
             'message' => $message,
             'failed' => $fail
@@ -175,14 +193,20 @@ class CurrencyController extends AbstractController
         $content = json_decode($request->getContent(), true);
 
         $entityManager = $this->getDoctrine()->getManager();
-
+        
+        /**
+         *  Doctrine query to find the rate the user is trying to delete
+         *  ex SELECT * FROM rates WHERE currencies = 'eurusd'
+         *  Run the doctrine remove Query and then Send back a message
+         *  for the user
+         */
         $rate = $this->getDoctrine()->getManager()->getRepository(Rates::class)->findOneBy(['currencies' => $content['currencies']]);
 
         $entityManager->remove($rate);
         $entityManager->flush();
 
         return new JsonResponse([
-            'message' => 'success',
+            'message' => 'Deleted entry',
         ]);
     }
 }
