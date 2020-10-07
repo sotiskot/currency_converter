@@ -99,19 +99,19 @@
                          *  If response wasn't a fail then add new property to the
                          *  array responsible for the table data for the DOM to show
                          */ 
-                        this.newRates.push( { 'currencies': this.from + this.to, 'rate': this.rate });
+                        this.newRates.push( { 'id': this.newRates.length, 'currencies': this.from + this.to, 'rate': this.rate });
                     }
                     
                 })
             },
 
             delRates: function (event, target){ 
-                document.getElementById(target.id).innerHTML = ''; //temp
                 axios.post('/delete', {
                     currencies: target
                 }).then(response => {
                     this.message = response.data.message
                     this.style.color = 'green'
+                    document.getElementById(target.id).innerHTML = ''; //temp
                 })
             }
         },
