@@ -4,8 +4,9 @@
 
 {% block body %}
 <!-- Vue Component initialization and pass the data passed by controller -->
+<p>{{ currencies }}</p>
+<p>{{ rates }}</p>
 <div id="app">
-    <main-component rates="{{ rates }}" currencies="{{ currencies }}"></main-component>
+    <table-component rates="{{ rates }}" currencies="{{ currencies }}"></table-component>
 </div>
-<a href="{{ path('rateList') }}" class="btn btn-primary btn-lg square" role="button">See All Rates</a>
 {% endblock %}

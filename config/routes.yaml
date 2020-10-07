@@ -6,3 +6,15 @@ edit:
     path: /edit
     controller: App\Controller\CurrencyController::edit
     methods: POST
+
+rateList:
+    path: /list
+    controller: App\Controller\CurrencyController::rateList
+
+addRate:
+    path: /add
+    controller: App\Controller\CurrencyController::addRate
+
+delRate:
+    path: /delete
+    controller: App\Controller\CurrencyController::delRate

@@ -19,7 +19,7 @@ import Vue from 'vue'
 window.Vue = require('vue');
 
 Vue.component('main-component', require('./components/MainComponent.vue').default);
-Vue.component('edit-component', require('./components/EditComponent.vue').default);
+Vue.component('table-component', require('./components/TableComponent.vue').default);
 
 const app = new Vue({
     el: '#app',
