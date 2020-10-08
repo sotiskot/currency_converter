@@ -62,17 +62,25 @@ class CurrencyController extends AbstractController
 
         $message = '';
         $fail = true; 
+
+        // If the user input is not numeric, negative number or 0 do nothing
         if(is_numeric($content['rate']) && $content['rate'] >= 0)
         {
             $entityManager = $this->getDoctrine()->getManager();
-        
+            
+            // find db entry and update the rate for it
             $rate = $entityManager->getRepository(Rates::class)->findOneBy(['currencies' => $content['currencies']]);
             $rate->setRate((float)$content['rate']);
     
             $entityManager->flush();
-            $message = 'New rate for '.$content['currencies'].' saved successfully';
+
+            // response message for the user
+            $message = 'Edit saved successfully';
+
+            // set fail to false so vue knows everything worked.
             $fail = false;
         }else{
+            // message for wrong user input
             $message = 'Make sure you input a positive number';
         }
 
