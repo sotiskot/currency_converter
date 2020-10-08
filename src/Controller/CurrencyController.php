@@ -48,7 +48,6 @@ class CurrencyController extends AbstractController
          * render the twig view and pass rate data and currency data
          */
         return $this->render('currency/index.html.twig', [
-            'controller_name' => 'CurrencyController',
             'rates' => json_encode($rates),
             'currencies' => json_encode($currencies)
             ]);
@@ -108,7 +107,6 @@ class CurrencyController extends AbstractController
          * render the twig view and pass rate data and currency data
          */
         return $this->render('currency/rateList.html.twig', [
-            'controller_name' => 'CurrencyController',
             'rates' => json_encode($rates),
             'currencies' => json_encode($currencies)
             ]);
@@ -141,7 +139,23 @@ class CurrencyController extends AbstractController
          *  Check if query is empty and the user doesn't try to add a rate for 1 coin
          *  and last make sure the input from the user is a valid number
          */
-        if(count($check) == 0 && $content['from'] != $content['to'] && is_numeric($content['rate']))
+
+        if(count($check) > 0)
+        {
+            /**
+             *  If everything else is correct then the currencies he is trying
+             *  to add a rate for already have a rate
+             */  
+            $message = 'Selected currencies already have a rate';
+        }else if($content['from'] == $content['to'])
+        {
+            // checks if user has the same coin in both selects and sends back appropriate message
+            $message = 'Tried to add rate for 1 currency';
+        }else if(!is_numeric($content['rate']) || $content['rate'] <= 0)
+        {
+            // checks if user's input is not a number to send back appropriate message
+            $message = 'Make sure the rate is a proper rate';
+        }else
         {
             // if everything is proper create a new rate
             $rate = new Rates();
@@ -156,22 +170,6 @@ class CurrencyController extends AbstractController
             //  alter message for the user and fail condition for the vue component
             $message = 'Added succesfully';
             $fail = false;
-        }else if($content['from'] == $content['to'])
-        {
-            // checks if user has the same coin in both selects and sends back appropriate message
-            $message = 'Tried to add rate for 1 currency';
-        }else if(!is_numeric($content['rate']))
-        {
-            // checks if user's input is not a number to send back appropriate message
-            $message = 'Make sure the rate is a proper number';
-        }
-        else{
-            /**
-             *  If everything else is correct then the currencies he is trying
-             *  to add a rate for already have a rate
-             */  
-            $message = 'Selected currencies already have a rate';
-            $fail = true;
         }
 
         // create a json response with a message and a fail condition for the vue
@@ -203,6 +201,112 @@ class CurrencyController extends AbstractController
         $rate = $this->getDoctrine()->getManager()->getRepository(Rates::class)->findOneBy(['currencies' => $content['currencies']]);
 
         $entityManager->remove($rate);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'message' => 'Deleted entry',
+        ]);
+    }
+
+    /**
+     * @Route("/add_currency", name="addCurrency")
+     */
+    public function addCurrency(){
+        $currencies = $this->getDoctrine()->getManager()->getRepository(Currency::class)->getAll();
+
+        /**
+         * remove db id from each
+         */
+        foreach ($currencies as $currency) {
+            unset($currency['id']);
+        }
+
+        /**
+         * render the twig view and pass rate data and currency data
+         */
+        return $this->render('currency/addCurrency.html.twig', [
+            'currencies' => json_encode($currencies)
+            ]);
+    }
+
+    /**
+     * @Route("/add_coin", name="addCoin")
+     */
+    public function addCoin(Request $request){
+       /**
+         * insert new Rate in Rates Table
+         */
+        $message = '';
+        $fail = true;
+        
+        $content = json_decode($request->getContent(), true);
+        $count = 0;
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+
+        $check = $entityManager->getRepository(Currency::class)->findByNameCode($content['name'], $content['code']);
+
+
+        /**
+         *  Check if query is empty and the user doesn't try to add a rate for 1 coin
+         *  and last make sure the input from the user is a valid number
+         */
+
+        if(count($check) > 0)
+        {
+            /**
+             *  If everything else is correct then the currencies he is trying
+             *  to add a rate for already have a rate
+             */  
+            $message = 'Name or Code already exist, try another';
+        }else if(strlen($content['code']) != 3 || !ctype_lower($content['code']))
+        {
+            // checks if user has the same coin in both selects and sends back appropriate message
+            $message = 'code needs to be 3 lower case letters';
+        }else
+        {
+            // if everything is proper create a new rate
+            $coin = new Currency();
+
+            $coin->setName($content['name']);
+            $coin->setCode($content['code']);
+
+            $entityManager->persist($coin);
+
+            $entityManager->flush();
+            
+            //  alter message for the user and fail condition for the vue component
+            $message = 'Added succesfully';
+            $fail = false;
+        }
+
+        // create a json response with a message and a fail condition for the vue
+        return new JsonResponse([
+            'message' => $message,
+            'failed' => $fail
+        ]);
+    }
+
+    public function delCoin(Request $request)
+    {
+        /**
+         * delete Rate from Rates Table
+         */
+        
+        $content = json_decode($request->getContent(), true);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        
+        /**
+         *  Doctrine query to find the rate the user is trying to delete
+         *  ex SELECT * FROM rates WHERE currencies = 'eurusd'
+         *  Run the doctrine remove Query and then Send back a message
+         *  for the user
+         */
+        $coin = $this->getDoctrine()->getManager()->getRepository(Currency::class)->findOneBy(['code' => $content['coin']]);
+
+        $entityManager->remove($coin);
         $entityManager->flush();
 
         return new JsonResponse([

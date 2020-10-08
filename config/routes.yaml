@@ -18,3 +18,15 @@ addRate:
 delRate:
     path: /delete
     controller: App\Controller\CurrencyController::delRate
+
+addCurrency:
+    path: /add_currency
+    controller: App\Controller\CurrencyController::addCurrency
+
+addCoin:
+    path: /add_coin
+    controller: App\Controller\CurrencyController::addCoin
+
+delCoin:
+    path: /delete_coin
+    controller: App\Controller\CurrencyController::delCoin

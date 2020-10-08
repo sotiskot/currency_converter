@@ -5,10 +5,7 @@
 {% block body %}
 <!-- Vue Component initialization and pass the data passed by controller -->
 <div id="app" class="mt-5">
-    <main-component rates="{{ rates }}" currencies="{{ currencies }}"></main-component>
-</div>
-<div class="container text-center">
-    <a href="{{ path('rateList') }}" role="button">See All Rates</a>
+    <exchange-component rates="{{ rates }}" currencies="{{ currencies }}"></exchange-component>
 </div>
 
 {% endblock %}

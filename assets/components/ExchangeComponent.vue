@@ -1,6 +1,6 @@
 <template>
     <div class="container text-center">
-        <form @submit.prevent="exchange">
+        <form @submit.prevent="exchange" class="col-6 m-auto">
             <div class="form-row">
                 <div class="form-col col-6">
                     <select class="custom-select" v-model="selectedFrom" @change="matchCurrency" >

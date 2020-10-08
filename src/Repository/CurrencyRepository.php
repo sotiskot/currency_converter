@@ -54,4 +54,16 @@ class CurrencyRepository extends ServiceEntityRepository
     
         return $qb->getQuery()->getArrayResult();
     }
+
+    public function findByNameCode($name, $code)
+    {
+        return $this->createQueryBuilder('c')
+            ->orWhere('c.name = :name')
+            ->setParameter('name', $name)
+            ->orWhere('c.code = :code')
+            ->setParameter('code', $code)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

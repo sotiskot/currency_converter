@@ -1,5 +1,5 @@
 <template>
-    <div class="container text-center">
+    <div class="container text-center mt-5">
         <table class="table">
             <tr class="bg-primary text-white">
                 <th>From</th>
@@ -12,7 +12,7 @@
                 <td>{{ matchCurrency(item.currencies.substring(3,6)) }}</td>
                 <td>{{ item.rate }}</td>
                 <td hidden>{{ item.currencies }}</td>
-                <td><button class="btn btn-danger" @click="delRates($event, item)">X</button></td>
+                <td><button class="btn btn-danger" @click="delRates(item)">X</button></td>
             </tr>
             <tr>
                 <td>
@@ -33,7 +33,7 @@
                 </td>
             </tr>
         </table>
-        <h1 class="bg-warning" :style="style">{{ message }}</h1>
+        <h5 class="bg-warning" :style="style">{{ message }}</h5>
     </div>
 </template>
 
@@ -82,6 +82,7 @@
              */ 
 
             addNewRate: function (){
+                this.message = '';
                 axios.post('/add', {
                     from: this.from,
                     to: this.to,
@@ -105,7 +106,8 @@
                 })
             },
 
-            delRates: function (event, target){ 
+            delRates: function (target){ 
+                this.message = '';
                 axios.post('/delete', {
                     currencies: target
                 }).then(response => {
