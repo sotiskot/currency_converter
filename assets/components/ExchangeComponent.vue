@@ -1,39 +1,16 @@
 <template>
     <div class="container text-center">
-        <form @submit.prevent="exchange" class="col-6 m-auto">
-            <div class="form-row">
-                <div class="form-col col-6">
-                    <select class="custom-select" v-model="selectedFrom" @change="matchCurrency" >
-                        <option disabled value="">Select Currency</option>
-                        <!-- select option using data from database  currency name and currency code as value -->
-                        <option v-for="item in JSON.parse(currencies)" v-bind:value="item.code">{{ item.name }}</option>
-                    </select>
-                </div>
-                <div class="form-col col-6">
-                    <input class="form-control" type="text" v-model="input" @keypress="isNumber($event, input)">
-                </div>      
-            </div>
-            <div class="form-row">
-                <div class="form-col col-6">
-                    <select class="custom-select" v-model="selectedTo" ref="test" disabled @change="allowExchange">
-                        <option disabled value="">Select Currency</option>
-                        <!-- select option using available exchange rates  -->
-                        <option v-for="item in available" v-bind:value="item.code">{{ item.name }}</option>
-                    </select>
-                </div>
-                <div class="form-col col-6">
-                    <input class="form-control" type="text" v-model="output" disabled>
-                                <!-- Call edit component and pass rates -->
-                    <button class="btn btn-success form-control" ref="exchange" @click="allowEdit" disabled>exchange</button>
-                </div>
-            </div>
-
-
-        </form>
-        <input v-model="editInput" @keypress="isNumber($event, editInput)" :style="editHidden" >
-        <button class="btn btn-primary m-1" ref="edit" @click="show" disabled>{{ buttonText }}</button>
-        <p style="color:yellow">{{ editText }}</p>
-    </div>
+        <div class="col-6 m-auto">
+            <input class="form-control text-center" type="text" placeholder="ammount" @keypress="isNumber($event)" v-model="input">
+            <select class="custom-select" v-for="(item, index) in select" @change="addSelect($event, index)">
+                <option disabled value="" selected>Select Currency</option>
+                <option v-bind:value="coin.code" v-for="coin in JSON.parse(select[index])">{{ coin.name }}</option>
+            </select>
+            <input class="form-control text-center" type="text" placeholder="result" v-model="result" disabled>
+            <button class="btn btn-success form-control" ref="convert" @click="convert" disabled>convert</button>
+            <button class="btn btn-primary form-control" @click="reset">reset</button>
+        </div>
+    </diV>
 </template>
 
 <script>
@@ -43,83 +20,54 @@
             rates: String
         },
 
-        data: function() {
-            return {
-                output: '0',
-                input: '',
-                editInput: '',
-                selectedFrom: '',
-                selectedTo: '',
-                available: [],
-                dot: false,
-                buttonText: 'Edit Rate',
-                editHidden: 'display:none;',
-                reverse: true,
-                editText: ''
+        data: function (){
+            return{
+                result: '',
+                select: [this.$props.currencies],
+                selected: [''],
+                input: ''
             }
         },
 
-        methods: {
+        methods:{
+            reset: function () {
+                this.select = [this.$props.currencies];
+                this.selected = [];
+                this.$refs.convert.disabled = true;
+            },
 
-            /**
-             * Manages the exchange rate between the 2 select fields.
-             */
-            exchange: function () {
-                var rates = JSON.parse(this.$props.rates);
-                var rate = '';
-                var temp;
-                
-                // create a value combination of the 2 selects ex. eurusd
-                const key = this.selectedFrom + this.selectedTo;
-                // create a value combination of the reverse of the 2 selects ex usdeur -> reverse = eurusd
-                const rkey = this.selectedTo + this.selectedFrom;
-                
+            addSelect: function (event, index){
+                if(index+1 == this.select.length)
+                { 
+                    var rates = JSON.parse(this.$props.rates);
+                    var currencies = JSON.parse(this.$props.currencies);
+                    const key = event.target.value;
 
-                // checks if the key combination is known by the data sent by database 
-                if( rates.filter(r => r.currencies == key).length > 0)
-                {
-                    rate = parseFloat(rates.find(r => r.currencies == key).rate);
-                    this.reverse = true;
 
-                }else // if not then reverse combination is used in order to use the known rate exchange
-                {
-                    rate = 1/parseFloat(rates.find(r => r.currencies == rkey).rate) * this.input;
-                    this.reverse = false;
+                    var available = rates.filter(r => r.currencies.includes(key));
+                    var tempAvailable = [];
+                    available.forEach(element => {
+                        /**
+                         * run through the available exchange rates extract the second code
+                         * and push that into the select array for 2nd select
+                         */  
+                        var currency = currencies.filter(r => r.code == element.currencies.replace(key, ""));
+                        if(currency.length>0)
+                            tempAvailable.push(currency[0]);
+                    });
+                    this.select.push(JSON.stringify(tempAvailable));
+                    this.selected.push('');
                 }
 
-                this.output = rate * this.input;
+                (this.selected.length >= 3 ) ? this.$refs.convert.disabled = false : this.$refs.convert.disabled = true;
+
+                this.selected[index] = event.target.value;
+                console.log(this.selected.length);
             },
+
             
-            matchCurrency: function (){
-
-                /**
-                 * get props and format them into json
-                 */
-                var rates = JSON.parse(this.$props.rates);
-                var currencies = JSON.parse(this.$props.currencies);
-
-                // use the 1st select as key
-                const key = this.selectedFrom;
-
-                this.available = [];
-                
-                // based on key find known any exchange rate that uses that code - prone to bugs if large_scale
-                var available = rates.filter(r => r.currencies.includes(key));
-
-                available.forEach(element => {
-                    /**
-                     * run through the available exchange rates extract the second code
-                     * and push that into the select array for 2nd select
-                     */  
-                    var currency = currencies.filter(r => r.code == element.currencies.replace(key, ""));
-                    if(currency.length>0)
-                        this.available.push(currency[0]);
-                });
-                
-                this.$refs.test.disabled = false;
-            },
-
-            isNumber: function(evt, input) {
+            
+            isNumber: function(evt) {
                 /**
                  * run this event every time the user tries to input any character
                  * extract the key code of that character
@@ -134,7 +82,7 @@
                 }else
                 {
                     // if keycode is dot check the whole input and allow only 1 to exist at a time
-                    if(charCode == 46 && input.includes('.'))
+                    if(charCode == 46 && event.target.value.includes('.'))
                     {
                         evt.preventDefault();;
                     }
@@ -142,30 +90,31 @@
                 }
             },
 
-            show: function () {
-                var key = '';
-                if( this.editHidden == 'display:none;' )
-                {
-                    this.editHidden = 'display:inline-block;';
-                    this.buttonText = 'Submit new Rate'
-                }else{
-                    (this.reverse) ? key = this.selectedFrom + this.selectedTo : key = this.selectedTo + this.selectedFrom;
-                    axios.post('/edit', {
-                        currencies: key,
-                        rate: this.editInput
-                    }).then((response)=>{
-                        this.editText = response.data.message
-                    });
-                }
-                    
-            },
+            convert: function () {
+                var rates = JSON.parse(this.$props.rates);
+                
+                var key = [];
+                var tempResult = this.input;
 
-            allowExchange: function () {
-                this.$refs.exchange.disabled = false;
-            },
+                this.selected.forEach((element, index) => {
+                    if(element != '' && this.selected[index+1] != ''){
+                        key.push(this.selected[index] + this.selected[index+1]);
+                    }
+                });
 
-            allowEdit: function () {
-                this.$refs.edit.disabled = false;
+                key.forEach(element => {
+                    if( rates.filter(r => r.currencies == element).length > 0)
+                    {
+                        tempResult = parseFloat(rates.find(r => r.currencies == element).rate) * tempResult;
+
+                    }else // if not then reverse combination is used in order to use the known rate exchange
+                    {
+                        tempResult = 1/parseFloat(rates.find(r => r.currencies == element.substr(3,6)+element.substr(0,3)).rate) * tempResult;
+                    }
+                });
+                
+                this.result = tempResult;
+                console.log(key);
             }
         },
 
