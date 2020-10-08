@@ -59,23 +59,26 @@ class CurrencyController extends AbstractController
     public function edit(Request $request)
     {
         $content = json_decode($request->getContent(), true);
-        
-        $entityManager = $this->getDoctrine()->getManager();
 
-        $rate = $entityManager->getRepository(Rates::class)->findOneBy(['currencies' => $content['currencies']]);
-        if(!$rate)
+        $message = '';
+        $fail = true; 
+        if(is_numeric($content['rate']) && $content['rate'] >= 0)
         {
-            return new JsonResponse([
-                'message' => 'no record to edit'
-            ]);
+            $entityManager = $this->getDoctrine()->getManager();
+        
+            $rate = $entityManager->getRepository(Rates::class)->findOneBy(['currencies' => $content['currencies']]);
+            $rate->setRate((float)$content['rate']);
+    
+            $entityManager->flush();
+            $message = 'New rate for '.$content['currencies'].' saved successfully';
+            $fail = false;
+        }else{
+            $message = 'Make sure you input a positive number';
         }
 
-        $rate->setRate((float)$content['rate']);
-
-        $entityManager->flush();
-
         return new JsonResponse([
-            'message' => 'New rate for '.$content['currencies'].' saved successfully'
+            'message' => $message,
+            'fail' => $fail
         ]);
     }
 

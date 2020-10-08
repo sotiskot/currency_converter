@@ -10,9 +10,12 @@
             <tr v-for="item in newRates" v-bind:id="item.id">
                 <td>{{ matchCurrency(item.currencies.substring(0,3)) }}</td>
                 <td>{{ matchCurrency(item.currencies.substring(3,6)) }}</td>
-                <td>{{ item.rate }}</td>
+                <td><input class="form-control text-center" type="text" v-bind:id="'text'+item.id" v-model="item.rate" @blur="edit($event, item)" @keyup.enter="$event.target.blur()" disabled></td>
                 <td hidden>{{ item.currencies }}</td>
-                <td><button class="btn btn-danger" @click="delRates(item)">X</button></td>
+                <td>
+                    <button class="btn btn-success" @click="enable(item)">edit</button>
+                    <button class="btn btn-danger" @click="delRates(item)">X</button>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -68,6 +71,11 @@
         },
 
         methods:{
+            enable: function(item){
+                document.getElementById('text'+item.id).disabled = false;
+                document.getElementById('text'+item.id).focus();
+            },
+
             // Return the name of the currency based on it's code
             matchCurrency: function (e) {
                 var currencies = JSON.parse(this.currencies);
@@ -115,6 +123,19 @@
                     this.style.color = 'green'
                     document.getElementById(target.id).innerHTML = ''; //temp
                 })
+            },
+            
+            edit: function (event, item){
+                axios.post('/edit', {
+                    currencies: item.currencies,
+                    rate: event.target.value
+                }).then(response => {
+                    if(response.data.fail == false)
+                    {
+                        event.target.disabled = true;
+                    }
+                    this.message = response.data.message;
+                });
             }
         },
 

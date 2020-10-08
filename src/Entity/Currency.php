@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CurrencyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -26,6 +28,16 @@ class Currency
      * @ORM\Column(type="string", length=11, nullable=true)
      */
     private $code;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Rates::class, mappedBy="coinFrom")
+     */
+    private $rates;
+
+    public function __construct()
+    {
+        $this->rates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {

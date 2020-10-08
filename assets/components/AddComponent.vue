@@ -87,6 +87,7 @@
                     this.message = response.data.message
                     this.style.color = 'green'
                     document.getElementById(target.id).innerHTML = ''; //temp
+                    console.log(response.data.array)
                 })
             }
         },
