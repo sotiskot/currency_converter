@@ -304,13 +304,24 @@ class CurrencyController extends AbstractController
          *  Run the doctrine remove Query and then Send back a message
          *  for the user
          */
-        $coin = $this->getDoctrine()->getManager()->getRepository(Currency::class)->findOneBy(['code' => $content['coin']]);
+        $coin = $entityManager->getRepository(Currency::class)->findOneBy(['code' => $content['coin']]);
+        $rates = $this->getDoctrine()->getManager()->getRepository(Rates::class)->getAll();
+
+        $array = '';
+        foreach($rates as $rate)
+        {
+            if(strpos($rate['currencies'], $content['coin']) !== false)
+            {
+                $entityManager->remove($entityManager->getRepository(Rates::class)->findOneBy(['currencies' => $rate['currencies']]));
+            }
+        }
 
         $entityManager->remove($coin);
         $entityManager->flush();
 
         return new JsonResponse([
             'message' => 'Deleted entry',
+            'array' => $array
         ]);
     }
 }
