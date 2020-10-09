@@ -124,7 +124,7 @@ class CurrencyController extends AbstractController
     }
 
     /**
-     * @Route("/add", name="add")
+     * @Route("/add_rate", name="addRate")
      */
     public function addRate(Request $request)
     {
@@ -191,7 +191,7 @@ class CurrencyController extends AbstractController
     }
 
     /**
-     * @Route("/delete", name="delete")
+     * @Route("/delete_rate", name="delRate")
      */
     public function delRate(Request $request)
     {
@@ -220,9 +220,9 @@ class CurrencyController extends AbstractController
     }
 
     /**
-     * @Route("/add_currency", name="addCurrency")
+     * @Route("/currency", name="currency")
      */
-    public function addCurrency(){
+    public function currency(){
         $currencies = $this->getDoctrine()->getManager()->getRepository(Currency::class)->getAll();
 
         /**
@@ -235,17 +235,17 @@ class CurrencyController extends AbstractController
         /**
          * render the twig view and pass rate data and currency data
          */
-        return $this->render('currency/addCurrency.html.twig', [
+        return $this->render('currency/currency.html.twig', [
             'currencies' => json_encode($currencies)
             ]);
     }
 
     /**
-     * @Route("/add_coin", name="addCoin")
+     * @Route("/add_currency", name="addCurrency")
      */
-    public function addCoin(Request $request){
-       /**
-         * insert new Rate in Rates Table
+    public function addCurrency(Request $request){
+        /**
+         * Add Currency to Currency Column if validate
          */
         $message = '';
         $fail = true;
@@ -256,6 +256,7 @@ class CurrencyController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
 
 
+        // find Currency by name OR code
         $check = $entityManager->getRepository(Currency::class)->findByNameCode($content['name'], $content['code']);
 
 
@@ -266,10 +267,7 @@ class CurrencyController extends AbstractController
 
         if(count($check) > 0)
         {
-            /**
-             *  If everything else is correct then the currencies he is trying
-             *  to add a rate for already have a rate
-             */  
+            //  if query has one (or more) entries create message for the user
             $message = 'Name or Code already exist, try another';
         }else if(strlen($content['code']) != 3 || !ctype_lower($content['code']))
         {
@@ -278,12 +276,12 @@ class CurrencyController extends AbstractController
         }else
         {
             // if everything is proper create a new rate
-            $coin = new Currency();
+            $currency = new Currency();
 
-            $coin->setName($content['name']);
-            $coin->setCode($content['code']);
+            $currency->setName($content['name']);
+            $currency->setCode($content['code']);
 
-            $entityManager->persist($coin);
+            $entityManager->persist($currency);
 
             $entityManager->flush();
             
@@ -299,7 +297,7 @@ class CurrencyController extends AbstractController
         ]);
     }
 
-    public function delCoin(Request $request)
+    public function delCurrency(Request $request)
     {
         /**
          * delete Rate from Rates Table
@@ -315,19 +313,26 @@ class CurrencyController extends AbstractController
          *  Run the doctrine remove Query and then Send back a message
          *  for the user
          */
-        $coin = $entityManager->getRepository(Currency::class)->findOneBy(['code' => $content['coin']]);
+
+        //  find currency user selected
+        $currency = $entityManager->getRepository(Currency::class)->findOneBy(['code' => $content['currency']]);
+
+        //  get result for all rates
         $rates = $this->getDoctrine()->getManager()->getRepository(Rates::class)->getAll();
 
+        // Pass through rates and check if currencies contain user selected currency
         $array = '';
         foreach($rates as $rate)
         {
-            if(strpos($rate['currencies'], $content['coin']) !== false)
+            if(strpos($rate['currencies'], $content['currency']) !== false)
             {
+                //  if rate->currencies contains user selected currency delete entry
                 $entityManager->remove($entityManager->getRepository(Rates::class)->findOneBy(['currencies' => $rate['currencies']]));
             }
         }
 
-        $entityManager->remove($coin);
+        //after every entry from rates with that currency is deleted go ahead and delete that currency
+        $entityManager->remove($currency);
         $entityManager->flush();
 
         return new JsonResponse([

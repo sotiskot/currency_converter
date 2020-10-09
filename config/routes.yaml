@@ -12,21 +12,21 @@ rateList:
     controller: App\Controller\CurrencyController::rateList
 
 addRate:
-    path: /add
+    path: /add_rate
     controller: App\Controller\CurrencyController::addRate
 
 delRate:
-    path: /delete
+    path: /delete_rate
     controller: App\Controller\CurrencyController::delRate
+
+currency:
+    path: /currency
+    controller: App\Controller\CurrencyController::currency
 
 addCurrency:
     path: /add_currency
     controller: App\Controller\CurrencyController::addCurrency
 
-addCoin:
-    path: /add_coin
-    controller: App\Controller\CurrencyController::addCoin
-
-delCoin:
-    path: /delete_coin
-    controller: App\Controller\CurrencyController::delCoin
+delCurrency:
+    path: /delete_currency
+    controller: App\Controller\CurrencyController::delCurrency

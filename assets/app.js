@@ -12,9 +12,9 @@ import Vue from 'vue'
 
 window.Vue = require('vue');
 
-Vue.component('exchange-component', require('./components/ExchangeComponent.vue').default);
+Vue.component('convert-component', require('./components/ConvertComponent.vue').default);
 Vue.component('rates-component', require('./components/RatesComponent.vue').default);
-Vue.component('add-component', require('./components/AddComponent.vue').default);
+Vue.component('currency-component', require('./components/CurrencyComponent.vue').default);
 
 const app = new Vue({
     el: '#app',

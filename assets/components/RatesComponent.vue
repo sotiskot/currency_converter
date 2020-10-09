@@ -36,7 +36,7 @@
                 </td>
             </tr>
         </table>
-        <h5 class="bg-warning" :style="style">{{ message }}</h5>
+        <h5 :style="style">{{ message }}</h5>
     </div>
 </template>
 
@@ -54,13 +54,14 @@
                 rate: '',
                 message: '',
                 style: {
-                    color: ''
+                    color: '',
+                    backgroundColor: ''
                 }
             }
         },
 
         computed:{
-            // Add prop to a computed vue data in order to be able to alter it
+            // Add prop to a computed vue data in order to be able to alter it in DOM
             newRates: function(){
                 var rates = [];
                 JSON.parse(this.$props.rates).forEach(element => {
@@ -72,6 +73,7 @@
 
         methods:{
             enable: function(item){
+                //  clicking edit enables input for rate and focuses in it
                 document.getElementById('text'+item.id).disabled = false;
                 document.getElementById('text'+item.id).focus();
             },
@@ -79,8 +81,8 @@
             // Return the name of the currency based on it's code
             matchCurrency: function (e) {
                 var currencies = JSON.parse(this.currencies);
-                var test = currencies.filter(r => r.code == e);
-                return test[0].name;
+                var currency = currencies.filter(r => r.code == e);
+                return currency[0].name;
             },
 
 
@@ -90,25 +92,29 @@
              */ 
 
             addNewRate: function (){
+                 //  Ajax post request with Currency from -> to and their rate
                 this.message = '';
-                axios.post('/add', {
+                axios.post('/add_rate', {
                     from: this.from,
                     to: this.to,
                     rate: this.rate
                 }).then(response => {
+                    //  check if request failed, if it did show message and alter colors for it
                     if(response.data.failed == true)
                     {
                         this.style.color = 'red'
+                        this.style.backgroundColor = "yellow"
                         this.message = response.data.message;
                     }else{
-                        this.style.color = 'green'
+                        this.style.color = 'white'
+                        this.style.backgroundColor = 'green';
                         this.message = response.data.message;
 
                         /**
                          *  If response wasn't a fail then add new property to the
                          *  array responsible for the table data for the DOM to show
                          */ 
-                        this.newRates.push( { 'id': this.newRates.length, 'currencies': this.from + this.to, 'rate': this.rate });
+                        this.newRates.push( { 'id': this.newRates.length+2, 'currencies': this.from + this.to, 'rate': this.rate });
                     }
                     
                 })
@@ -116,25 +122,36 @@
 
             delRates: function (target){ 
                 this.message = '';
-                axios.post('/delete', {
+                // Ajax post request for deletion with currencies code
+                axios.post('/delete_rate', {
                     currencies: target
                 }).then(response => {
+                    //  on response show deleted message and alter colors of it
                     this.message = response.data.message
-                    this.style.color = 'green'
-                    document.getElementById(target.id).innerHTML = ''; //temp
+                    this.style.color = 'white'
+                    this.style.colo = 'green'
+                    // Make the array element like that in Order for DOM not to show it
+                    document.getElementById(target.id).innerHTML = ''
                 })
             },
             
             edit: function (event, item){
+                // Ajax post request for edit with currencies code and new rate value
                 axios.post('/edit', {
                     currencies: item.currencies,
                     rate: event.target.value
                 }).then(response => {
+                    // If response indicates no failure go ahead and disable input alter colors for message
                     if(response.data.fail == false)
                     {
                         event.target.disabled = true;
+                        this.style.color = 'white';
+                        this.style.backgroundColor = 'green';
+                    }else{
+                        this.style.color = 'red';
+                        this.style.backgroundColor = 'yellow';
                     }
-                    this.message = response.data.message;
+                    this.message = response.data.message
                 });
             }
         },
